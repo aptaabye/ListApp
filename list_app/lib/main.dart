@@ -11,8 +11,26 @@ void main() {
   ));
 }
 
+class Listrmb {
+  String title = '';
+  List<String> items = [];
+
+  Listrmb({
+    required this.title,
+    required this.items,
+  });
+}
+
 class MainRoute extends StatelessWidget {
   const MainRoute({super.key});
+
+  @override
+  void initState() async {
+    WidgetsFlutterBinding.ensureInitialized();
+    final database = openDatabase(
+      join(await getDatabasesPath(), 'list_database.db'),
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
