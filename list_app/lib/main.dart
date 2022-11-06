@@ -12,10 +12,12 @@ void main() {
 }
 
 class Listrmb {
+  final int id;
   String title = '';
   List<String> items = [];
 
   Listrmb({
+    required this.id,
     required this.title,
     required this.items,
   });
@@ -29,6 +31,12 @@ class MainRoute extends StatelessWidget {
     WidgetsFlutterBinding.ensureInitialized();
     final database = openDatabase(
       join(await getDatabasesPath(), 'list_database.db'),
+      onCreate: (db, version) {
+        return db.execute(
+          'CREATE TABLE listrmb(id INTEGER PRIMARY KEY, title TEXT, items )',
+        );
+      },
+      version: 1,
     );
   }
 
