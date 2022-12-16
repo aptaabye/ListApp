@@ -5,29 +5,33 @@ import 'package:sqflite/sqflite.dart';
 import 'package:flutter/material.dart';
 
 void main() {
-  runApp(const MaterialApp(
-    title: 'Navigation Basics',
-    home: MainRoute(),
-  ));
+  runApp(MaterialApp(
+      title: 'ListApp',
+      home: MainRoute(),
+      initialRoute: '/main',
+      routes: {
+        '/main': (context) => MainRoute(),
+        '/create': (context) => CreateRoute(),
+        '/settings': (context) => SettingsRoute(),
+        "/play": (context) => PlayRoute(),
+        "/finish": (context) => FinishRoute(),
+        "/edit": (context) => EditRoute()
+      }));
 }
 
-class Listrmb {
-  final int id;
-  String title = '';
-  List<String> items = [];
-
-  Listrmb({
-    required this.id,
-    required this.title,
-    required this.items,
-  });
+class MainRoute extends StatefulWidget {
+  @override
+  State<StatefulWidget> createState() {
+    return _MainRoute();
+  }
 }
 
-class MainRoute extends StatelessWidget {
-  const MainRoute({super.key});
+class _MainRoute extends State<MainRoute> {
+  List<String> _lists = [];
 
   @override
   void initState() async {
+    super.initState();
     WidgetsFlutterBinding.ensureInitialized();
     final database = openDatabase(
       join(await getDatabasesPath(), 'list_database.db'),
@@ -43,206 +47,259 @@ class MainRoute extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('List Quizzer'),
-      ),
-      body: Center(
-        child: ElevatedButton(
-          child: const Text('Open route'),
-          onPressed: () {
-            showDataAlert(context);
-          },
-        ),
-      ),
-    );
+        appBar: AppBar(
+            title: const Text('List Quizzer'),
+            leading: ElevatedButton(
+                child: Image.asset("assets/settings.jpg"),
+                onPressed: () {
+                  Navigator.pushNamed(context, '/settings');
+                })),
+        body: Center(
+            child: Column(children: [
+          Container(
+              margin: EdgeInsets.all(10.0),
+              child: ElevatedButton(
+                  onPressed: () {
+                    Navigator.pushNamed(context, '/create');
+                  },
+                  child: Text("Create new list"))),
+          Expanded(child: Lists(_lists))
+        ])));
   }
 }
 
-showDataAlert(BuildContext context) {
-  showDialog(
-      context: context,
-      builder: (context) {
-        return AlertDialog(
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.all(
-                Radius.circular(
-                  20.0,
-                ),
-              ),
-            ),
-            contentPadding: EdgeInsets.only(
-              top: 10.0,
-            ),
-            title: Text(
-              "Create ID",
-              style: TextStyle(fontSize: 24.0),
-            ),
-            content: Container(
-              padding: const EdgeInsets.all(8.0),
-              child: Column(children: <Widget>[
-                Text("Enter List Title: "),
-                TextField(
-                  decoration: InputDecoration(
-                      border: OutlineInputBorder(),
-                      hintText: 'Enter Id here',
-                      labelText: 'ID'),
-                ),
-                ElevatedButton(
-                  child: const Text('Open route'),
-                  onPressed: () {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                          builder: (context) => const CreateRoute()),
-                    );
-                  },
-                ),
-              ]),
-            ));
-      });
+class Lists extends StatelessWidget {
+  final List<String> lists;
+  Lists(this.lists);
+
+  Widget _buildListItem(BuildContext context, int index) {
+    return Card(
+      child: Column(
+        children: <Widget>[
+          Image.asset('assets/play.jpg'),
+          Text(lists[index], style: TextStyle(color: Colors.deepPurple)),
+          ElevatedButton(
+              child: Text("options"),
+              onPressed: () {
+                //popup dialog or something
+              })
+        ],
+      ),
+    );
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return ListView.builder(
+      itemBuilder: _buildListItem,
+      itemCount: lists.length,
+    );
+  }
 }
 
 class CreateRoute extends StatelessWidget {
+  String listTitle = '';
   const CreateRoute({super.key});
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-        appBar: AppBar(
-          title: const Text('Create New List'),
-        ),
-        body: const MyForm());
-  }
-}
-
-/*
-class PlayRoute extends StatelessWidget {
-  const PlayRoute({super.key});
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('List Title'),
+        title: Text('Create New List'),
       ),
       body: Center(
-        child: ElevatedButton(
-          child: const Text('Open route'),
-          onPressed: () {
-            // Navigate to second route when tapped.
-          },
-        ),
-      ),
+          child: Column(
+        children: [
+          Row(children: [
+            ElevatedButton(
+                child: Text("Cancel"),
+                onPressed: () {
+                  Navigator.pop(context);
+                  //reset state to zero
+                }),
+            ElevatedButton(
+                child: Text("Save"),
+                onPressed: () {
+                  //back to home screen but save data
+                })
+          ]),
+          TextField(
+              onChanged: (text) {
+                listTitle = text;
+              },
+              decoration: InputDecoration(
+                  labelText: 'List Title', hintText: 'Enter List Title')),
+          Row(//must make this dynamic
+              children: [
+            TextField(
+                decoration: InputDecoration(
+                    labelText: 'List Item', hintText: 'Enter List Item')),
+            ElevatedButton(child: Text("delete item"), onPressed: () {})
+          ]),
+          ElevatedButton(child: Text("Add List Item"), onPressed: () => {})
+        ],
+      )),
     );
   }
 }
 
-class EditRoute extends StatelessWidget {
-  const EditRoute({super.key});
+class addList extends StatelessWidget {
+  final List<String> addCounter;
+  Lists(this.lists);
 
+  Widget _buildAddListItem(BuildContext context, int index) {
+    return Card(
+      child: Column(
+        children: <Widget>[
+          Image.asset('assets/play.jpg'),
+          Text(lists[index], style: TextStyle(color: Colors.deepPurple)),
+          ElevatedButton(
+              child: Text("options"),
+              onPressed: () {
+                //popup dialog or something
+              })
+        ],
+      ),
+    );
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return ListView.builder(
+      itemBuilder: _buildAddListItem,
+      itemCount: lists.length,
+    );
+  }
+}
+
+//must think about what settings to add
+class SettingsRoute extends StatelessWidget {
+  const SettingsRoute({super.key});
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('List Title'),
+        title: Text('Settings'),
       ),
       body: Center(
-        child: ElevatedButton(
-          child: const Text('Open route'),
-          onPressed: () {
-            // Navigate to second route when tapped.
-          },
-        ),
+          child: Column(children: [
+        ElevatedButton(
+            child: Text("Back"),
+            onPressed: () => {
+                  //navi back to home
+                }),
+        Row()
+      ])),
+    );
+  }
+}
+
+class PlayRoute extends StatelessWidget {
+  const PlayRoute({super.key});
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: Text('Play'),
       ),
+      body: Center(
+          child: Column(
+        children: [
+          Row(children: [
+            ElevatedButton(
+                child: Text("Exit"),
+                onPressed: () => {
+                      //navi back to homescreen without progress saved
+                    }),
+            ElevatedButton(
+                child: Text("Continue Early"),
+                onPressed: () => {
+                      //navi to finish screen quick
+                    })
+          ]),
+          Center(
+              child: Column(
+            children: [
+              Text("List Title"),
+              Row(), //progress, two counts of answered correctly and remaining
+              Row(), //wrong or right answer indicator for just entered answer
+              Row(children: [
+                TextField(
+                    decoration: InputDecoration(labelText: "Enter list items")),
+                ElevatedButton(
+                    child: Text("Submit"),
+                    onPressed: () => {
+                          //empty textinput and update values
+                        })
+              ])
+            ],
+          ))
+        ],
+      )),
     );
   }
 }
 
 class FinishRoute extends StatelessWidget {
   const FinishRoute({super.key});
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Results'),
+        title: Text('Session Finish'),
       ),
       body: Center(
-        child: ElevatedButton(
-          child: const Text('Open route'),
-          onPressed: () {
-            // Navigate to second route when tapped.
-          },
-        ),
-      ),
-    );
-  }
-}
-
-class HistoryRoute extends StatelessWidget {
-  const HistoryRoute({super.key});
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: const Text('List Quizzer'),
-      ),
-      body: Center(
-        child: ElevatedButton(
-          child: const Text('Open route'),
-          onPressed: () {
-            // Navigate to second route when tapped.
-          },
-        ),
-      ),
-    );
-  }
-}
-*/
-
-class MyForm extends StatefulWidget {
-  const MyForm({super.key});
-
-  @override
-  State<MyForm> createState() => _MyFormState();
-}
-
-class _MyFormState extends State<MyForm> {
-  final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
-
-  @override
-  Widget build(BuildContext context) {
-    return Form(
-      key: _formKey,
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: <Widget>[
-          Text("Enter list item here: "),
-          TextFormField(
-            validator: (String? value) {
-              if (value == null || value.isEmpty) {
-                return 'Please enter some text';
-              }
-              return null;
-            },
-          ),
-          Padding(
-            padding: const EdgeInsets.symmetric(vertical: 16.0),
-            child: ElevatedButton(
-              onPressed: () {
-                // Validate will return true if the form is valid, or false if
-                // the form is invalid.
-                if (_formKey.currentState!.validate()) {
-                  // Process data.
-
-                }
-              },
-              child: const Text('Submit'),
-            ),
-          ),
+          child: Column(
+        children: [
+          Row(), //session performance values, maybe time, how many wrong answers, finished banner, missed values
+          Row(children: [
+            ElevatedButton(
+                child: Text("Redo"),
+                onPressed: () => {
+                      //back to play screen
+                    }),
+            ElevatedButton(
+                child: Text("Continue"),
+                onPressed: () => {
+                      //back to main screen and save values
+                    })
+          ])
         ],
+      )),
+    );
+  }
+}
+
+class EditRoute extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: Text('Edit List'),
       ),
+      body: Center(
+          child: Column(children: [
+        Row(children: [
+          ElevatedButton(
+              child: Text("Cancel"),
+              onPressed: () => {
+                    //navi back to home without saving
+                  }),
+          ElevatedButton(
+              child: Text("Save"),
+              onPressed: () => {
+                    //navi back to home without saving
+                  })
+        ]),
+        Text("List Title"),
+        Row(children: [
+          TextField(),
+          ElevatedButton(
+              child: Text("Delete List Item"),
+              onPressed: () => {
+                    //delete from listview
+                  })
+        ]) //has to be a listview of rows
+      ])),
     );
   }
 }
