@@ -97,9 +97,47 @@ class Lists extends StatelessWidget {
   }
 }
 
+class ListModel extends ChangeNotifier {
+  String title = "";
+  List<String> items = [];
+
+  /// An unmodifiable view of the items in the cart.
+  List<String> get getItems {
+    return this.items;
+  }
+
+  String get getTitle {
+    return this.title;
+  }
+
+  void set setTitle(String replacement) {
+    this.title = replacement;
+    notifyListeners();
+  }
+
+  void set deleteItem(int index) {
+    this.items.removeAt(index); ///need a pop or something
+    notifyListeners();
+  }
+
+  void setItem(int index, String item) {
+    this.items.insert(index, item);  ///need a replace method or something
+    notifyListeners();
+  }
+
+  ListModel(String title) {
+    this.title = title;
+  }
+
+  ListModel.withItems(String title, List<String> items) {
+    this.title = title;
+    this.items = items;
+  }
+}
+
 class CreateRoute extends StatelessWidget {
-  String listTitle = '';
-  const CreateRoute({super.key});
+  String tempTitle = "";
+  CreateRoute({super.key});
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -123,18 +161,32 @@ class CreateRoute extends StatelessWidget {
                 })
           ]),
           TextField(
-              onChanged: (text) {
-                listTitle = text;
-              },
-              decoration: InputDecoration(
-                  labelText: 'List Title', hintText: 'Enter List Title')),
-          Row(//must make this dynamic
-              children: [
-            TextField(
-                decoration: InputDecoration(
-                    labelText: 'List Item', hintText: 'Enter List Item')),
-            ElevatedButton(child: Text("delete item"), onPressed: () {})
-          ]),
+            onChanged: (text) {
+              tempTitle = text;
+            },
+            decoration: InputDecoration(
+              labelText: 'List Title', 
+              hintText: 'Enter List Title'
+            )
+          ),
+          ListView(//must make this dynamic
+            children: [
+              Row(
+                children: [
+                  TextField(
+                    onChanged: (text) {
+                      
+                    },
+                    decoration: InputDecoration(
+                      labelText: 'List Item', 
+                      hintText: 'Enter List Item'
+                    )
+                  ),
+                  ElevatedButton(child: Text("delete item"), onPressed: () {})
+                ]
+              )
+            ]
+          ),
           ElevatedButton(child: Text("Add List Item"), onPressed: () => {})
         ],
       )),
@@ -143,7 +195,7 @@ class CreateRoute extends StatelessWidget {
 }
 
 class addList extends StatelessWidget {
-  final List<String> addCounter;
+  final List<String> addCounter = [];
   Lists(this.lists);
 
   Widget _buildAddListItem(BuildContext context, int index) {
